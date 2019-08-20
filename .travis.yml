@@ -9,13 +9,13 @@ matrix:
     - go: 1.x
       env: LATEST=true
     - go: tip
+    - go: master
   allow_failures:
     - go: tip
-
-go_import_path: ./
+    - go: master
 
 install:
-  - ln -s $PWD $GOPATH/src/${PWD##*/}
+  - # Skip
 
 script:
   - go test ./... -v
