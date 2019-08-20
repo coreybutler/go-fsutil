@@ -12,6 +12,8 @@ matrix:
   allow_failures:
     - go: tip
 
+go_import_path: ./
+
 install:
   - ln -s $PWD $GOPATH/src/${PWD##*/}
 
