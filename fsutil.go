@@ -22,9 +22,7 @@ import (
 // to treat the path as a directory even if a file extension is present.
 //
 // For example:
-// ```go
-// fsutil.Touch("./path/to/archive.old", false, true)
-// ```
+// `fsutil.Touch("./path/to/archive.old", false, true)`
 //
 // Normally, any file path with an extension is determined
 // to be a file. However; the second argument (`false`)
@@ -95,7 +93,7 @@ func Exists(path string) bool {
 // Returns the fully resolved path, even if the
 // path does not exist.
 //
-// ```go
+// ```
 // fsutil.Abs("./does/not/exist")
 // ```
 // If the code above was run within `/home/user`, the
