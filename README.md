@@ -14,4 +14,4 @@ This cross-platform library provides a lightweight abstraction of common file sy
 - `IsFile(path string)`: Returns a boolean value indicating `true` if the path resolves to a file and `false` if it does not.
 - `IsDirectory(path string)`: Returns a boolean value indicating `true` if the path resolves to a directory and `false` if it does not.
 
-For complete docs, see the Godoc. Examples are available in the test files.
+For complete details, see the [Godoc](https://godoc.org/github.com/coreybutler/go-fsutil). Examples are available in the [test files](https://github.com/coreybutler/go-fsutil/blob/master/fsutil_test.go).
