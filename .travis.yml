@@ -13,7 +13,7 @@ matrix:
     - go: tip
 
 install:
-  - # Skip
+  - ln -s $PWD $GOPATH/src/${PWD##*/}
 
 script:
   - go test ./... -v
