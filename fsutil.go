@@ -49,8 +49,10 @@ func Touch(path string, flags ...interface{}) string {
 	return abs
 }
 
-func Mkdirp(path string) {
-	os.MkdirAll(Abs(path), os.ModePerm)
+func Mkdirp(path string) string {
+	path = Abs(path)
+	os.MkdirAll(path, os.ModePerm)
+	return path
 }
 
 func Exists(path string) bool {
@@ -73,9 +75,9 @@ func Abs(path string) string {
 }
 
 func Clean(path string) {
-  path = Abs(path)
+	path = Abs(path)
 
-  if IsFile(path) {
+	if IsFile(path) {
 		path = filepath.Dir(path)
 	}
 
