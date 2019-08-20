@@ -1,3 +1,3 @@
-module fsutil
+module github.com/coreybutler/go-fsutil
 
 go 1.12
