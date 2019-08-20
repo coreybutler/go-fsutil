@@ -20,7 +20,6 @@ This cross-platform go module provides a lightweight abstraction of common file 
 package main
 
 import (
-  "log"
   "github.com/coreybutler/go-fsutil"
 )
 
