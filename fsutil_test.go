@@ -1,7 +1,6 @@
-package fsutil_test
+package fsutil
 
 import (
-	util "fsutil"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -15,24 +14,24 @@ func TestExists(t *testing.T) {
 
 	abs, _ := filepath.Abs("./")
 
-	if !util.Exists(abs) {
+	if !Exists(abs) {
 		t.Log("An existing directory is unrecognized.")
 		t.Fail()
 	}
 
-	if !util.Exists(filepath.Join(abs, "go.mod")) {
+	if !Exists(filepath.Join(abs, "go.mod")) {
 		t.Log("An existing file is unrecognized.")
 		t.Fail()
 	}
 
 	abs = filepath.Join(abs, testDir)
 
-	if util.Exists(abs) {
+	if Exists(abs) {
 		t.Log("A non-existant directory is recognized.")
 		t.Fail()
 	}
 
-	if util.Exists(filepath.Join(abs, "noexist.ext")) {
+	if Exists(filepath.Join(abs, "noexist.ext")) {
 		t.Log("A non-existant file is recognized.")
 		t.Fail()
 	}
@@ -44,7 +43,7 @@ func TestAbs(t *testing.T) {
 	clear()
 
 	dir := testDir + "/c/d"
-	absdir := util.Abs(dir)
+	absdir := Abs(dir)
 	abs, _ := filepath.Abs("./")
 	abs = filepath.Join(abs, testDir+"/c/d")
 
@@ -61,7 +60,7 @@ func TestMkdirp(t *testing.T) {
 
 	dir := testDir + "/c/d"
 
-	util.Mkdirp(dir)
+	Mkdirp(dir)
 
 	abs, err := filepath.Abs(dir)
 	if err != nil {
@@ -95,7 +94,7 @@ func TestTouch(t *testing.T) {
 	abs, _ := filepath.Abs("./")
 	abs = filepath.Join(abs, testDir)
 
-	util.Touch(testDir + "/test.txt")
+	Touch(testDir + "/test.txt")
 
 	if _, err := os.Stat(filepath.Join(abs, "test.txt")); err != nil {
 		if os.IsNotExist(err) {
@@ -121,7 +120,7 @@ func TestTouch(t *testing.T) {
 
 	// Touch a directory
 	abs = filepath.Join(abs, "dummydir.old")
-	util.Touch(abs, false, true)
+	Touch(abs, false, true)
 
 	stat2, err2 := os.Stat(abs)
 	if err2 != nil {
@@ -140,7 +139,7 @@ func TestTouch(t *testing.T) {
 
 	// Test forced file
 	abs = filepath.Join(abs, "dummyshellscript")
-	util.Touch(abs, true)
+	Touch(abs, true)
 
 	stat3, err3 := os.Stat(abs)
 	if err3 != nil {
@@ -158,7 +157,7 @@ func TestTouch(t *testing.T) {
 	clear()
 }
 
-func IsFile(t *testing.T) {
+func TestIsFile(t *testing.T) {
 	clear()
 
 	os.MkdirAll("./.data", os.ModePerm)
@@ -171,12 +170,12 @@ func IsFile(t *testing.T) {
 		t.Fail()
 	}
 
-	if !util.IsFile(fp) {
+	if !IsFile(fp) {
 		t.Log("A file is not recognized as a file.")
 		t.Fail()
 	}
 
-	if util.IsFile("./.data") {
+	if IsFile("./.data") {
 		t.Log("A directory is recognized as a file.")
 		t.Fail()
 	}
@@ -184,7 +183,7 @@ func IsFile(t *testing.T) {
 	clear()
 }
 
-func IsDirectory(t *testing.T) {
+func TestIsDirectory(t *testing.T) {
 	clear()
 
 	os.MkdirAll("./.data", os.ModePerm)
@@ -197,12 +196,12 @@ func IsDirectory(t *testing.T) {
 		t.Fail()
 	}
 
-	if util.IsDirectory(fp) {
+	if IsDirectory(fp) {
 		t.Log("A file is recognized as a directory.")
 		t.Fail()
 	}
 
-	if !util.IsDirectory("./.data") {
+	if !IsDirectory("./.data") {
 		t.Log("A directory is not recognized as a directory.")
 		t.Fail()
 	}
@@ -213,7 +212,7 @@ func IsDirectory(t *testing.T) {
 func TestClean(t *testing.T) {
 	clear()
 
-	util.Clean(testDir)
+	Clean(testDir)
 
 	stat, err := os.Stat(testDir)
 	if err != nil {
