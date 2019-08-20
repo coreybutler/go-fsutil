@@ -4,7 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/coreybutler/go-fsutil?status.svg)](https://godoc.org/github.com/coreybutler/go-fsutil)
 [![Build Status](https://travis-ci.org/coreybutler/go-fsutil.svg?branch=master)](https://travis-ci.org/coreybutler/go-fsutil)
 
-This cross-platform library provides a lightweight abstraction of common file system methods:
+This cross-platform go module provides a lightweight abstraction of common file system methods:
 
 - `Touch(path string)`: Like the Unix [touch command](https://en.wikipedia.org/wiki/Touch_(command)). Returns a string with the absolute path of the file/directory.
 - `Mkdirp(path string)`: Like the Unix [mkdir -p](https://en.wikipedia.org/wiki/Mkdir) command. Returns a string with the absolute path of the directory.
@@ -13,5 +13,24 @@ This cross-platform library provides a lightweight abstraction of common file sy
 - `Clean(path string)`: This method ensures an empty directory exists at the specified path.
 - `IsFile(path string)`: Returns a boolean value indicating `true` if the path resolves to a file and `false` if it does not.
 - `IsDirectory(path string)`: Returns a boolean value indicating `true` if the path resolves to a directory and `false` if it does not.
+
+## Example
+
+```go
+package main
+
+import (
+  "log"
+  "github.com/coreybutler/go-fsutil"
+)
+
+func main() {
+  fsutil.Touch("./path/to/test.txt")
+}
+```
+
+The code above would create an empty file called `test.txt` in `<<current working directory>>/path/to`. If the directory does not exist, it will be created.
+
+---
 
 For complete details, see the [Godoc](https://godoc.org/github.com/coreybutler/go-fsutil). Examples are available in the [test files](https://github.com/coreybutler/go-fsutil/blob/master/fsutil_test.go).
