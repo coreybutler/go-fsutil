@@ -13,6 +13,10 @@ This cross-platform go module provides a lightweight abstraction of common file 
 - `Clean(path string)`: This method ensures an empty directory exists at the specified path.
 - `IsFile(path string)`: Returns a boolean value indicating `true` if the path resolves to a file and `false` if it does not.
 - `IsDirectory(path string)`: Returns a boolean value indicating `true` if the path resolves to a directory and `false` if it does not.
+- `ReadTextFile(path string)`: Reads a text file and returns a _string_.
+- `WriteTextFile(path string, content string, <os.FileMode>)`: Writes a text file from a _string_. Optionally accepts a file mode.
+- `IsReadable(path string)`: Determines whether the path is readable. Returns a boolean.
+- `IsWritable(path string)`: Determines whether the path is writable. Returns a boolean.
 
 ## Example
 

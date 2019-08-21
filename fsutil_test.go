@@ -234,6 +234,97 @@ func TestClean(t *testing.T) {
 	clear()
 }
 
+func TestWriteTextFile(t *testing.T) {
+	clear()
+	abs, _ := filepath.Abs("./")
+	abs = filepath.Join(abs, testDir)
+	path := filepath.Join(abs, "test.txt")
+	content := "test content"
+
+	err := WriteTextFile(path, content)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if string(data) != content {
+		t.Log("Failed to read the file content.")
+		t.Fail()
+	}
+
+	clear()
+}
+
+func TestReadTextFile(t *testing.T) {
+	abs, _ := filepath.Abs("./")
+	abs = filepath.Join(abs, testDir)
+	os.MkdirAll(abs, os.ModePerm)
+	path := filepath.Join(abs, "test.txt")
+	content := "test content"
+
+	err := ioutil.WriteFile(path, []byte(content), os.ModePerm)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	data, err := ReadTextFile(path)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if data != content {
+		t.Log("Failed to read the file content.")
+		t.Fail()
+	}
+
+	clear()
+}
+
+func TestPermissions(t *testing.T) {
+	clear()
+	abs, _ := filepath.Abs("./")
+	abs = filepath.Join(abs, testDir)
+	os.MkdirAll(abs, os.ModePerm)
+	path := filepath.Join(abs, "test.txt")
+	content := "test content"
+
+	err := ioutil.WriteFile(path, []byte(content), os.ModePerm)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if !IsReadable(path) {
+		t.Log("File is readable, but method suggests it is not.")
+		t.Fail()
+	}
+
+	if !IsWritable(path) {
+		t.Log("File is writable, but method suggests it is not.")
+		t.Fail()
+	}
+
+	if IsReadable(path + "junk") {
+		t.Log("File is not readable, but method suggests it is.")
+		t.Fail()
+	}
+
+	if IsWritable(path + "junk") {
+		t.Log("File is not writable, but method suggests it is.")
+		t.Fail()
+	}
+
+	clear()
+}
+
 func clear() {
 	os.RemoveAll("./.data")
 }

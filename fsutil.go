@@ -8,6 +8,7 @@ package fsutil
 // more easily understood code.
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -150,3 +151,77 @@ func IsDirectory(path string) bool {
 
 	return stat.IsDir()
 }
+
+// Writes text to a file (automatically converts string to
+// a byte array). If the path does not exist, it will be
+// created automatically. This is the equivalent of using
+// the Touch() method first, then writing text content to
+// the file.
+//
+// It is also possible to pass a third argument, a custom permission.
+// By default, os.ModePerm is used.
+func WriteTextFile(path string, content string, args ...interface{}) error {
+	path = Touch(path, true)
+	perm := os.ModePerm
+
+	if len(args) > 0 {
+		perm = args[0].(os.FileMode)
+	}
+
+	return ioutil.WriteFile(path, []byte(content), perm)
+}
+
+// Reads a text file and converts results from bytes
+// to a string.
+func ReadTextFile(path string) (string, error) {
+	data, err := ioutil.ReadFile(Abs(path))
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
+// Determines whether the file/directory is Readable
+// for the active system user.
+func IsReadable(path string) bool {
+	return allowFileAction(path, os.O_RDONLY, 0666)
+}
+
+// Determines whether the file/directory is Writable
+// for the active system user.
+func IsWritable(path string) bool {
+	return allowFileAction(path, os.O_WRONLY, 0666)
+}
+
+func allowFileAction(path string, flag int, perm os.FileMode) bool {
+	path = Abs(path)
+
+	if !Exists(path) {
+		return false
+	}
+
+	file, err := os.OpenFile(path, flag, perm)
+	allowed := true
+	if err != nil {
+		if os.IsPermission(err) {
+			allowed = false
+		}
+	}
+	file.Close()
+
+	return allowed
+}
+
+// TODO List
+// LastModified
+// Created
+// Size: bytes, kb, mb, gb
+// IsSymlink
+// Symlink
+// Move
+// Copy
+// Rename
+// Append
+// Prepend
+// IsExecutable?
