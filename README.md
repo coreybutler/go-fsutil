@@ -37,3 +37,9 @@ The code above would create an empty file called `test.txt` in `<<current workin
 ---
 
 For complete details, see the [Godoc](https://godoc.org/github.com/coreybutler/go-fsutil). Examples are available in the [test files](https://github.com/coreybutler/go-fsutil/blob/master/fsutil_test.go).
+
+## Notice
+
+This API is stable, but subject to additions. I work on it whenever a "common file system nedd" comes up in other projects. As a result, the `1.0.X` release cycle will continue to receive new feature additions until I consider the API "well-defined". This deviates a tiny bit from traditional semantic versioning, because new "features" are being added in patch releases.
+
+Upon the release of a `1.1.0` version, the API will be considered "well-defined" and will adhere more strictly to semantic versioning practices.
