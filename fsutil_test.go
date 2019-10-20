@@ -325,6 +325,128 @@ func TestPermissions(t *testing.T) {
 	clear()
 }
 
+func TestList(t *testing.T) {
+	clear()
+	abs, _ := filepath.Abs("./")
+	abs = filepath.Join(abs, testDir)
+	os.MkdirAll(abs, os.ModePerm)
+	path := filepath.Join(abs, "test.txt")
+	content := "test content"
+
+	err := ioutil.WriteFile(path, []byte(content), os.ModePerm)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	testPath := filepath.Dir(abs)
+
+	// Basic Recursive Directory Listing
+	list, err := List(testPath, true)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if len(list) != 3 {
+		t.Logf("Expected 3 results, received %v", len(list))
+		t.Log(list)
+		t.Fail()
+	}
+
+	// Non-recursive directory listing
+	list, err = List(testPath, false)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if len(list) != 1 {
+		t.Logf("Expected 1 results, received %v", len(list))
+		t.Log(list)
+		t.Fail()
+	}
+
+	// Basic recursive directory listing with blacklist.
+	list, err = List(testPath, true, filepath.Join(testPath, "/**/test.txt"))
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if len(list) != 2 {
+		t.Logf("Expected 2 results, received %v", len(list))
+		t.Log(list)
+		t.Fail()
+	}
+
+	// Basic non-recursive directory listing with blacklist.
+	list, err = List(testDir, true, filepath.Join(testPath, "/**/test.txt"))
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if len(list) != 1 {
+		t.Logf("Expected 1 results, received %v", len(list))
+		t.Log(list)
+		t.Fail()
+	}
+
+	// List directories only (recursively)
+	list, err = ListDirectories(testPath, true)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if len(list) != 2 {
+		t.Logf("Expected 2 results, received %v", len(list))
+		t.Log(list)
+		t.Fail()
+	}
+
+	// List directories only (recursively) w/ blacklist
+	list, err = ListDirectories(testDir, true, filepath.Join(testPath, "/a"))
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if len(list) != 1 {
+		t.Logf("Expected 1 results, received %v", len(list))
+		t.Log(list)
+		t.Fail()
+	}
+
+	list, err = ListFiles(testPath, true)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if len(list) != 1 {
+		t.Logf("Expected 1 results, received %v", len(list))
+		t.Log(list)
+		t.Fail()
+	}
+
+	// Non-existant directory
+	list, err = List("./dne", true)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if len(list) != 0 {
+		t.Logf("Expected 0 results, received %v", len(list))
+		t.Log(list)
+		t.Fail()
+	}
+
+	clear()
+}
+
 func clear() {
 	os.RemoveAll("./.data")
 }

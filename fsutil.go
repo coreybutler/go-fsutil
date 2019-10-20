@@ -8,6 +8,7 @@ package fsutil
 // more easily understood code.
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -211,6 +212,134 @@ func allowFileAction(path string, flag int, perm os.FileMode) bool {
 	file.Close()
 
 	return allowed
+}
+
+type listpath struct {
+	Path string
+	Stat os.FileInfo
+}
+
+func list(directory string, recursive bool, ignore ...string) ([]*listpath, error) {
+	directory = Abs(directory)
+	response := make([]*listpath, 0)
+	var ignored error
+
+	// Walk recursive lists
+	if recursive {
+		_ = filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			ignored = isIgnoredPath(path, ignore...)
+			if ignored != nil {
+				return ignored
+			}
+
+			response = append(response, &listpath{
+				Path: path,
+				Stat: info,
+			})
+
+			return nil
+		})
+	} else {
+		paths, matchErr := filepath.Glob(filepath.Clean(filepath.Join(directory, "/*")))
+
+		if matchErr == nil {
+			for _, path := range paths {
+				ignored = isIgnoredPath(path, ignore...)
+				if ignored == nil {
+					stat, _ := os.Stat(path)
+					response = append(response, &listpath{
+						Path: path,
+						Stat: stat,
+					})
+				}
+			}
+		} else {
+			return make([]*listpath, 0), matchErr
+		}
+	}
+
+	return response, nil
+}
+
+func isIgnoredPath(path string, ignore ...string) error {
+	if len(ignore) > 0 {
+		for _, pattern := range ignore {
+			matched, matchErr := filepath.Match(pattern, path)
+
+			if matchErr != nil {
+				return matchErr
+			}
+
+			if matched {
+				return errors.New("Ignored")
+			}
+		}
+	}
+
+	return nil
+}
+
+// Generate a list of path names for the given directory.
+// Optionally provide a list of ignored paths, using
+// [glob](https://en.wikipedia.org/wiki/Glob_%28programming%29) syntax.
+func List(directory string, recursive bool, ignore ...string) ([]string, error) {
+	response, err := list(directory, recursive, ignore...)
+	if err != nil {
+		return make([]string, 0), err
+	}
+
+	paths := make([]string, len(response))
+	for i := range response {
+		paths[i] = response[i].Path
+	}
+
+	return paths, nil
+}
+
+// ListDirectories provides absolute paths of directories only, ignoring files.
+func ListDirectories(directory string, recursive bool, ignore ...string) ([]string, error) {
+	paths := make([]string, 0)
+	response, err := list(directory, recursive, ignore...)
+	if err != nil {
+		return paths, err
+	}
+
+	if len(response) == 0 {
+		return paths, nil
+	}
+
+	for _, item := range response {
+		if item.Stat.IsDir() {
+			paths = append(paths, item.Path)
+		}
+	}
+
+	return paths, nil
+}
+
+// ListFiles provides absolute paths of files only, ignoring directories.
+func ListFiles(directory string, recursive bool, ignore ...string) ([]string, error) {
+	paths := make([]string, 0)
+	response, err := list(directory, recursive, ignore...)
+	if err != nil {
+		return paths, err
+	}
+
+	if len(response) == 0 {
+		return paths, nil
+	}
+
+	for _, item := range response {
+		if !item.Stat.IsDir() {
+			paths = append(paths, item.Path)
+		}
+	}
+
+	return paths, nil
 }
 
 // TODO List
