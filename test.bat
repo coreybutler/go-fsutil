@@ -1,3 +1,3 @@
 rd /S ./.data
-richgo test ./... -v
+go test ./... -v
 rd /S ./.data

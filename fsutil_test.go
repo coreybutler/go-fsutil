@@ -2,6 +2,7 @@ package fsutil
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -441,6 +442,101 @@ func TestList(t *testing.T) {
 	if len(list) != 0 {
 		t.Logf("Expected 0 results, received %v", len(list))
 		t.Log(list)
+		t.Fail()
+	}
+
+	clear()
+}
+
+func TestByteSize(t *testing.T) {
+	clear()
+	os.MkdirAll("./.data", os.ModePerm)
+
+	fp := "./.data/test.txt"
+
+	_, err := os.Create(fp)
+	if err != nil {
+		t.Log("Problem creating test file.")
+		t.Fail()
+	}
+
+	size, err := ByteSize(fp)
+	if err != nil {
+		t.Log(err)
+		t.Fail()
+	}
+
+	t.Logf("ByteSize: %v", size)
+}
+
+func TestSize(t *testing.T) {
+	clear()
+	os.MkdirAll("./.data", os.ModePerm)
+
+	fp := "./.data/test.txt"
+
+	_, err := os.Create(fp)
+	if err != nil {
+		t.Log("Problem creating test file.")
+		t.Fail()
+	}
+
+	size, err := Size(fp)
+	if err != nil {
+		t.Log(err)
+		t.Fail()
+	}
+
+	t.Logf("Size: %v", size)
+}
+
+func TestIsSymlink(t *testing.T) {
+	clear()
+
+	os.MkdirAll("./.data", os.ModePerm)
+
+	fp := "./.data"
+
+	ok := IsSymlink(fp)
+	if ok {
+		t.Log("Non-existant symlink detected.")
+		t.Fail()
+	}
+
+	e := os.Symlink(".data", ".test")
+
+	// Users may not have permission to create symlink.
+	if e != nil {
+		log.Print(e)
+		clear()
+		return
+	}
+
+	ok = IsSymlink(".test")
+	os.Remove(".test")
+	if !ok {
+		t.Log("Symlink not detected.")
+		t.Fail()
+	}
+}
+
+func TestLastModified(t *testing.T) {
+	clear()
+
+	os.MkdirAll("./.data", os.ModePerm)
+
+	fp := "./.data/test.txt"
+
+	_, err := os.Create(fp)
+	if err != nil {
+		t.Log("Problem creating test file.")
+		t.Fail()
+	}
+
+	_, err = LastModified(fp)
+	clear()
+	if err != nil {
+		t.Log(err)
 		t.Fail()
 	}
 

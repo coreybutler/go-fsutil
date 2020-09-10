@@ -10,8 +10,11 @@ package fsutil
 import (
 	"errors"
 	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
+	"time"
 )
 
 // Similar to the touch command on *nix, where the file
@@ -342,12 +345,96 @@ func ListFiles(directory string, recursive bool, ignore ...string) ([]string, er
 	return paths, nil
 }
 
+// ByteSize returns the number of bytes (size) of a file/directory.
+func ByteSize(path string) (int64, error) {
+	path = Abs(path)
+
+	var size int64
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			size += info.Size()
+		}
+		return err
+	})
+
+	if err != nil {
+		return -1, err
+	}
+
+	return size, nil
+}
+
+// KB represents the size of a kilobyte.
+const KB float64 = 1024
+
+// MB represents the size of a megabyte.
+const MB float64 = 1024 * KB
+
+// GB represents the size of a giggabyte.
+const GB float64 = 1024 * MB
+
+// TB represents the size of a terabyte.
+const TB float64 = 1024 * GB
+
+// PB represents the size of a petabyte.
+const PB float64 = 1024 * TB
+
+// Size returns a "pretty" version of the size, such as "3.12MB"
+func Size(path string, sigfig ...int) (string, error) {
+	size, err := ByteSize(path)
+	if err != nil {
+		return "", err
+	}
+
+	var sigfigs int
+	if len(sigfig) == 0 {
+		sigfigs = 2
+	} else {
+		sigfigs = sigfig[0]
+	}
+
+	switch {
+	case float64(size) > PB:
+		return strconv.FormatFloat(math.Round((float64(size*100)/PB))/100, 'f', sigfigs, 64) + "PB", nil
+	case float64(size) > TB:
+		return strconv.FormatFloat(math.Round((float64(size*100)/TB))/100, 'f', sigfigs, 64) + "TB", nil
+	case float64(size) > GB:
+		return strconv.FormatFloat(math.Round((float64(size*100)/GB))/100, 'f', sigfigs, 64) + "GB", nil
+	case float64(size) > MB:
+		return strconv.FormatFloat(math.Round((float64(size*100)/MB))/100, 'f', sigfigs, 64) + "MB", nil
+	case float64(size) > KB:
+		return strconv.FormatFloat(math.Round((float64(size*100)/KB))/100, 'f', sigfigs, 64) + "KB", nil
+	default:
+		return strconv.FormatInt(size, 10) + "B", nil
+	}
+}
+
+// Symlink creates a symbolic link. This just runs `os.Symlink()`.
+func Symlink(target string, name string) error {
+	return os.Symlink(target, name)
+}
+
+// IsSymlink determines whether the path is a symbolic link.
+func IsSymlink(path string) bool {
+	info, err := os.Readlink(path)
+	return (err == nil && len(info) > 0)
+}
+
+// LastModified identies the last time the path was modified.
+func LastModified(path string) (time.Time, error) {
+	file, err := os.Stat(path)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return file.ModTime(), nil
+}
+
 // TODO List
-// LastModified
 // Created
-// Size: bytes, kb, mb, gb
-// IsSymlink
-// Symlink
 // Move
 // Copy
 // Rename
