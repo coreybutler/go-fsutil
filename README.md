@@ -20,6 +20,7 @@ This cross-platform go module provides a lightweight abstraction of common file 
 - `IsWritable(path string)`: Determines whether the path is writable. Returns a boolean.
 - `ByteSize(path string)`: Determines the size (in bytes) of a file or directory.
 - `Size(path string, decimalPlaces int)`: A "pretty" label for the size of a file or directory. For example, `3.14MB`.
+- `FormatSize(size int64, decimalPlaces int)`: Pretty-print the byte size, i.e. `3.14MB`.
 
 ## Example
 
