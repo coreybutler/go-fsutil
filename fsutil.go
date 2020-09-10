@@ -389,6 +389,13 @@ func Size(path string, sigfig ...int) (string, error) {
 		return "", err
 	}
 
+	return FormatSize(size, sigfig...), nil
+}
+
+// FormatSize returns a nicely formatted representation of a number of bytes,
+// such as `3.14MB`
+func FormatSize(bytesize int64, sigfig ...int) string {
+	size := float64(bytesize)
 	var sigfigs int
 	if len(sigfig) == 0 {
 		sigfigs = 2
@@ -397,18 +404,18 @@ func Size(path string, sigfig ...int) (string, error) {
 	}
 
 	switch {
-	case float64(size) > PB:
-		return strconv.FormatFloat(math.Round((float64(size*100)/PB))/100, 'f', sigfigs, 64) + "PB", nil
-	case float64(size) > TB:
-		return strconv.FormatFloat(math.Round((float64(size*100)/TB))/100, 'f', sigfigs, 64) + "TB", nil
-	case float64(size) > GB:
-		return strconv.FormatFloat(math.Round((float64(size*100)/GB))/100, 'f', sigfigs, 64) + "GB", nil
-	case float64(size) > MB:
-		return strconv.FormatFloat(math.Round((float64(size*100)/MB))/100, 'f', sigfigs, 64) + "MB", nil
-	case float64(size) > KB:
-		return strconv.FormatFloat(math.Round((float64(size*100)/KB))/100, 'f', sigfigs, 64) + "KB", nil
+	case size >= PB:
+		return strconv.FormatFloat(math.Round(((size*100)/PB))/100, 'f', sigfigs, 64) + "PB"
+	case size >= TB:
+		return strconv.FormatFloat(math.Round(((size*100)/TB))/100, 'f', sigfigs, 64) + "TB"
+	case size >= GB:
+		return strconv.FormatFloat(math.Round(((size*100)/GB))/100, 'f', sigfigs, 64) + "GB"
+	case size >= MB:
+		return strconv.FormatFloat(math.Round(((size*100)/MB))/100, 'f', sigfigs, 64) + "MB"
+	case size >= KB:
+		return strconv.FormatFloat(math.Round(((size*100)/KB))/100, 'f', sigfigs, 64) + "KB"
 	default:
-		return strconv.FormatInt(size, 10) + "B", nil
+		return strconv.FormatInt(bytesize, 10) + "B"
 	}
 }
 

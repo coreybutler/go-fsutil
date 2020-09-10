@@ -490,6 +490,16 @@ func TestSize(t *testing.T) {
 	t.Logf("Size: %v", size)
 }
 
+func TestFormatSize(t *testing.T) {
+	clear()
+	val := FormatSize(1024, 0)
+
+	if val != "1KB" {
+		t.Logf("Expected 1KB, recieved %v", val)
+		t.Fail()
+	}
+}
+
 func TestIsSymlink(t *testing.T) {
 	clear()
 
