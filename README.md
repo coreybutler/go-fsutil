@@ -2,7 +2,6 @@
 
 [![Version](https://img.shields.io/github/tag/coreybutler/go-fsutil.svg?label=Version)](https://github.com/coreybutler/go-fsutil)
 [![GoDoc](https://godoc.org/github.com/coreybutler/go-fsutil?status.svg)](https://godoc.org/github.com/coreybutler/go-fsutil)
-[![Build Status](https://travis-ci.org/coreybutler/go-fsutil.svg?branch=master)](https://travis-ci.org/coreybutler/go-fsutil)
 
 This cross-platform go module provides a lightweight abstraction of common file system methods:
 
