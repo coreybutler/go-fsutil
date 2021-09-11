@@ -453,7 +453,7 @@ func Move(source string, dest string) error {
 
 		if info.IsDir() {
 			Touch(target)
-		} else {
+		} else if !IsSymlink(path) {
 			err := os.Rename(path, target)
 			if err != nil {
 				return err
@@ -475,7 +475,7 @@ func Copy(source string, dest string) error {
 
 		if info.IsDir() {
 			Touch(target)
-		} else {
+		} else if !IsSymlink(path) {
 			input, err := ioutil.ReadFile(path)
 			if err != nil {
 				return err

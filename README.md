@@ -1,7 +1,5 @@
 # fsutil
 
-
-
 This cross-platform go module provides a lightweight abstraction of common file system methods:
 
 - `Touch(path string)`: Like the Unix [touch command](https://en.wikipedia.org/wiki/Touch_(command)). Returns a string with the absolute path of the file/directory.
@@ -19,8 +17,8 @@ This cross-platform go module provides a lightweight abstraction of common file 
 - `ByteSize(path string)`: Determines the size (in bytes) of a file or directory.
 - `Size(path string, decimalPlaces int)`: A "pretty" label for the size of a file or directory. For example, `3.14MB`.
 - `FormatSize(size int64, decimalPlaces int)`: Pretty-print the byte size, i.e. `3.14MB`.
-- `Copy(source string, target string) error`: Copy a file/directory contents.
-- `Move(source string, target string) error`: Move a file/directory contents.
+- `Copy(source string, target string) error`: Copy a file/directory contents. Ignores symlinks.
+- `Move(source string, target string) error`: Move a file/directory contents. Ignores symlinks.
 
 ## Example
 
