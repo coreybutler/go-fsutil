@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -256,6 +257,76 @@ func TestWriteTextFile(t *testing.T) {
 
 	if string(data) != content {
 		t.Log("Failed to read the file content.")
+		t.Fail()
+	}
+
+	clear()
+}
+
+func TestCopy(t *testing.T) {
+	clear()
+	abs, _ := filepath.Abs("./")
+	abs = filepath.Join(abs, testDir)
+	path := filepath.Join(abs, "test.txt")
+	content := "test content"
+
+	err := WriteTextFile(path, content)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	err = Copy(abs, abs+"/copied")
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	data, err := ReadTextFile(abs + "/copied/test.txt")
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+	if strings.TrimSpace(data) != content {
+		t.Log("File contents do not match")
+		t.Fail()
+	}
+
+	clear()
+}
+
+func TestMove(t *testing.T) {
+	clear()
+	abs, _ := filepath.Abs("./")
+	abs = filepath.Join(abs, testDir)
+	path := filepath.Join(abs, "test.txt")
+	content := "test content"
+
+	err := WriteTextFile(path, content)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	err = Move(abs, abs+"/copied")
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	data, err := ReadTextFile(abs + "/copied/test.txt")
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+	if strings.TrimSpace(data) != content {
+		t.Log("File contents do not match")
+		t.Fail()
+	}
+
+	_, err = ReadTextFile(path)
+	if err == nil {
+		t.Log("Failed to remove file in move operation")
 		t.Fail()
 	}
 

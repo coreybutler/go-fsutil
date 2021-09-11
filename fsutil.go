@@ -9,11 +9,13 @@ package fsutil
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -440,11 +442,57 @@ func LastModified(path string) (time.Time, error) {
 	return file.ModTime(), nil
 }
 
+func Move(source string, dest string) error {
+	return filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		stub := strings.Replace(path, source, "", 1)
+		target := filepath.Join(dest, stub)
+
+		if info.IsDir() {
+			Touch(target)
+		} else {
+			err := os.Rename(path, target)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func Copy(source string, dest string) error {
+	return filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		fmt.Println("> >", path)
+		stub := strings.Replace(path, source, "", 1)
+		target := filepath.Join(dest, stub)
+
+		if info.IsDir() {
+			Touch(target)
+		} else {
+			input, err := ioutil.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			err = ioutil.WriteFile(target, input, 0644)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
 // TODO List
 // Created
-// Move
-// Copy
-// Rename
 // Append
 // Prepend
 // IsExecutable?
