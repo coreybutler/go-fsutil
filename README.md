@@ -1,7 +1,6 @@
 # fsutil
 
-[![Version](https://img.shields.io/github/tag/coreybutler/go-fsutil.svg?label=Version)](https://github.com/coreybutler/go-fsutil)
-[![GoDoc](https://godoc.org/github.com/coreybutler/go-fsutil?status.svg)](https://godoc.org/github.com/coreybutler/go-fsutil)
+
 
 This cross-platform go module provides a lightweight abstraction of common file system methods:
 
@@ -20,6 +19,8 @@ This cross-platform go module provides a lightweight abstraction of common file 
 - `ByteSize(path string)`: Determines the size (in bytes) of a file or directory.
 - `Size(path string, decimalPlaces int)`: A "pretty" label for the size of a file or directory. For example, `3.14MB`.
 - `FormatSize(size int64, decimalPlaces int)`: Pretty-print the byte size, i.e. `3.14MB`.
+- `Copy(source string, target string) error`: Copy a file/directory contents.
+- `Move(source string, target string) error`: Move a file/directory contents.
 
 ## Example
 
