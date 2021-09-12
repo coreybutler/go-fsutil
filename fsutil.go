@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"math"
 	"os"
@@ -525,7 +526,14 @@ func Copy(source string, dest string, ignoreErrors ...bool) error {
 }
 
 // Unzip a file
-func Unzip(src, dest string) error {
+func Unzip(src string, dest string) error {
+	src = Abs(src)
+	if !Exists(src) {
+		return errors.New(src + " does not exist")
+	}
+
+	dest = Abs(dest)
+
 	r, err := zip.OpenReader(src)
 	if err != nil {
 		return err
@@ -584,6 +592,69 @@ func Unzip(src, dest string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// Zip a file or directory. Does not follow symlinks.
+func Zip(src string, target ...string) error {
+	dest := strings.Replace(filepath.Base(src), filepath.Ext(src), "", 1) + ".zip"
+	if len(target) > 0 {
+		dest = target[0]
+	}
+
+	dest = Abs(dest)
+
+	// buf := new(bytes.Buffer)
+	newZipFile, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
+	defer newZipFile.Close()
+
+	writer := zip.NewWriter(newZipFile)
+	defer writer.Close()
+
+	filepath.Walk(src, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() && !IsSymlink(path) {
+			input, err := ioutil.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			localpath := strings.Replace(path, src, "", 1)
+			if strings.HasPrefix(localpath, "/") {
+				localpath = strings.Replace(localpath, "/", "", 1)
+			} else if strings.HasPrefix(localpath, "\\") {
+				localpath = strings.Replace(localpath, "\\", "", 1)
+			}
+
+			err = addToZipArchive(writer, localpath, input)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	return nil
+}
+
+func addToZipArchive(archive *zip.Writer, filename string, content []byte) error {
+	f, err := archive.Create(filename)
+	if err != nil {
+		return err
+	}
+
+	_, err = f.Write(content)
+	if err != nil {
+		return err
 	}
 
 	return nil

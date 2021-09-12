@@ -236,33 +236,6 @@ func TestClean(t *testing.T) {
 	clear()
 }
 
-func TestWriteTextFile(t *testing.T) {
-	clear()
-	abs, _ := filepath.Abs("./")
-	abs = filepath.Join(abs, testDir)
-	path := filepath.Join(abs, "test.txt")
-	content := "test content"
-
-	err := WriteTextFile(path, content)
-	if err != nil {
-		t.Log(err.Error())
-		t.Fail()
-	}
-
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		t.Log(err.Error())
-		t.Fail()
-	}
-
-	if string(data) != content {
-		t.Log("Failed to read the file content.")
-		t.Fail()
-	}
-
-	clear()
-}
-
 func TestCopy(t *testing.T) {
 	clear()
 	abs, _ := filepath.Abs("./")
@@ -327,6 +300,33 @@ func TestMove(t *testing.T) {
 	_, err = ReadTextFile(path)
 	if err == nil {
 		t.Log("Failed to remove file in move operation")
+		t.Fail()
+	}
+
+	clear()
+}
+
+func TestWriteTextFile(t *testing.T) {
+	clear()
+	abs, _ := filepath.Abs("./")
+	abs = filepath.Join(abs, testDir)
+	path := filepath.Join(abs, "test.txt")
+	content := "test content"
+
+	err := WriteTextFile(path, content)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if string(data) != content {
+		t.Log("Failed to read the file content.")
 		t.Fail()
 	}
 
@@ -618,6 +618,52 @@ func TestLastModified(t *testing.T) {
 	clear()
 	if err != nil {
 		t.Log(err)
+		t.Fail()
+	}
+
+	clear()
+}
+
+func TestZip(t *testing.T) {
+	clear()
+	abs, _ := filepath.Abs("./")
+	abs = filepath.Join(abs, testDir)
+	path := filepath.Join(abs, "test.txt")
+	content := "test content"
+
+	err := WriteTextFile(path, content)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+	path = filepath.Join(abs, "more", "test2.txt")
+	content = "test content"
+
+	err = WriteTextFile(path, content)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	err = Zip(abs, filepath.Join(abs, "../", "test.zip"))
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if !Exists(filepath.Join(abs, "../", "test.zip")) {
+		t.Log("Zip file not created")
+		t.Fail()
+	}
+
+	err = Unzip(filepath.Join(abs, "../", "test.zip"), filepath.Join(abs, "zipout"))
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+	}
+
+	if !Exists(filepath.Join(abs, "zipout", "test.txt")) || !Exists(filepath.Join(abs, "zipout", "more", "test2.txt")) {
+		t.Log("extracted files not found")
 		t.Fail()
 	}
 
