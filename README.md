@@ -17,8 +17,8 @@ This cross-platform go module provides a lightweight abstraction of common file 
 - `ByteSize(path string)`: Determines the size (in bytes) of a file or directory.
 - `Size(path string, decimalPlaces int)`: A "pretty" label for the size of a file or directory. For example, `3.14MB`.
 - `FormatSize(size int64, decimalPlaces int)`: Pretty-print the byte size, i.e. `3.14MB`.
-- `Copy(source string, target string) error`: Copy a file/directory contents. Ignores symlinks.
-- `Move(source string, target string) error`: Move a file/directory contents. Ignores symlinks.
+- `Copy(source string, target string, ignoreErrors ...bool) error`: Copy a file/directory contents. Ignores symlinks. Optionally specify `true` as the last argument to ignore errors.
+- `Move(source string, target string, ignoreErrors ...bool) error`: Move a file/directory contents. Ignores symlinks. Optionally specify `true` as the last argument to ignore errors.
 
 ## Example
 

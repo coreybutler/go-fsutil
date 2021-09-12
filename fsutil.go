@@ -9,7 +9,6 @@ package fsutil
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"math"
 	"os"
@@ -158,7 +157,7 @@ func IsDirectory(path string) bool {
 	return stat.IsDir()
 }
 
-// Writes text to a file (automatically converts string to
+// WriteTextFile writes text to a file (automatically converts string to
 // a byte array). If the path does not exist, it will be
 // created automatically. This is the equivalent of using
 // the Touch() method first, then writing text content to
@@ -177,7 +176,7 @@ func WriteTextFile(path string, content string, args ...interface{}) error {
 	return ioutil.WriteFile(path, []byte(content), perm)
 }
 
-// Reads a text file and converts results from bytes
+// ReadTextFile reads a text file and converts results from bytes
 // to a string.
 func ReadTextFile(path string) (string, error) {
 	data, err := ioutil.ReadFile(Abs(path))
@@ -188,16 +187,35 @@ func ReadTextFile(path string) (string, error) {
 	return string(data), nil
 }
 
-// Determines whether the file/directory is Readable
+// IsReadable determines whether the file/directory is readable
 // for the active system user.
 func IsReadable(path string) bool {
 	return allowFileAction(path, os.O_RDONLY, 0666)
 }
 
-// Determines whether the file/directory is Writable
+// IsWritable determines whether the file/directory is writable
 // for the active system user.
 func IsWritable(path string) bool {
 	return allowFileAction(path, os.O_WRONLY, 0666)
+}
+
+// IsExecutable determines whether the file/directory is executable
+// for the active system user.
+func IsExecutable(path string) bool {
+	path = Abs(path)
+
+	if !Exists(path) {
+		return false
+	}
+
+	fileInfo, err := os.Lstat("file.txt")
+	if err != nil {
+		return false
+	}
+
+	mode := fileInfo.Mode()
+
+	return mode&0111 != 0
 }
 
 func allowFileAction(path string, flag int, perm os.FileMode) bool {
@@ -442,7 +460,12 @@ func LastModified(path string) (time.Time, error) {
 	return file.ModTime(), nil
 }
 
-func Move(source string, dest string) error {
+func Move(source string, dest string, ignoreErrors ...bool) error {
+	ignore := false
+	if len(ignoreErrors) > 0 {
+		ignore = ignoreErrors[0]
+	}
+
 	return filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -455,7 +478,7 @@ func Move(source string, dest string) error {
 			Touch(target)
 		} else if !IsSymlink(path) {
 			err := os.Rename(path, target)
-			if err != nil {
+			if err != nil && !ignore {
 				return err
 			}
 		}
@@ -464,12 +487,17 @@ func Move(source string, dest string) error {
 	})
 }
 
-func Copy(source string, dest string) error {
+func Copy(source string, dest string, ignoreErrors ...bool) error {
+	ignore := false
+	if len(ignoreErrors) > 0 {
+		ignore = ignoreErrors[0]
+	}
+
 	return filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("> >", path)
+
 		stub := strings.Replace(path, source, "", 1)
 		target := filepath.Join(dest, stub)
 
@@ -477,12 +505,12 @@ func Copy(source string, dest string) error {
 			Touch(target)
 		} else if !IsSymlink(path) {
 			input, err := ioutil.ReadFile(path)
-			if err != nil {
+			if err != nil && !ignore {
 				return err
 			}
 
 			err = ioutil.WriteFile(target, input, 0644)
-			if err != nil {
+			if err != nil && !ignore {
 				return err
 			}
 		}
