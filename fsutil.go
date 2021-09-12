@@ -8,7 +8,10 @@ package fsutil
 // more easily understood code.
 
 import (
+	"archive/zip"
 	"errors"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"math"
 	"os"
@@ -460,6 +463,7 @@ func LastModified(path string) (time.Time, error) {
 	return file.ModTime(), nil
 }
 
+// Move a file/directory to another location
 func Move(source string, dest string, ignoreErrors ...bool) error {
 	ignore := false
 	if len(ignoreErrors) > 0 {
@@ -487,6 +491,7 @@ func Move(source string, dest string, ignoreErrors ...bool) error {
 	})
 }
 
+// Copy a file/directory
 func Copy(source string, dest string, ignoreErrors ...bool) error {
 	ignore := false
 	if len(ignoreErrors) > 0 {
@@ -519,8 +524,72 @@ func Copy(source string, dest string, ignoreErrors ...bool) error {
 	})
 }
 
+// Unzip a file
+func Unzip(src, dest string) error {
+	r, err := zip.OpenReader(src)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := r.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	os.MkdirAll(dest, 0755)
+
+	// Closure to address file descriptors issue with all the deferred .Close() methods
+	extractAndWriteFile := func(f *zip.File) error {
+		rc, err := f.Open()
+		if err != nil {
+			return err
+		}
+		defer func() {
+			if err := rc.Close(); err != nil {
+				panic(err)
+			}
+		}()
+
+		path := filepath.Join(dest, f.Name)
+
+		// Check for ZipSlip (Directory traversal)
+		if !strings.HasPrefix(path, filepath.Clean(dest)+string(os.PathSeparator)) {
+			return fmt.Errorf("illegal file path: %s", path)
+		}
+
+		if f.FileInfo().IsDir() {
+			os.MkdirAll(path, f.Mode())
+		} else {
+			os.MkdirAll(filepath.Dir(path), f.Mode())
+			f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+			if err != nil {
+				return err
+			}
+			defer func() {
+				if err := f.Close(); err != nil {
+					panic(err)
+				}
+			}()
+
+			_, err = io.Copy(f, rc)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	for _, f := range r.File {
+		err := extractAndWriteFile(f)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // TODO List
 // Created
 // Append
 // Prepend
-// IsExecutable?
