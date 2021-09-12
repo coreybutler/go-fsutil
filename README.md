@@ -12,8 +12,9 @@ This cross-platform go module provides a lightweight abstraction of common file 
 - `IsSymlink(path string) bool`: Determines if a path is a symbolic link.
 - `ReadTextFile(path string)`: Reads a text file and returns a _string_.
 - `WriteTextFile(path string, content string, <os.FileMode>)`: Writes a text file from a _string_. Optionally accepts a file mode.
-- `IsReadable(path string)`: Determines whether the path is readable. Returns a boolean.
-- `IsWritable(path string)`: Determines whether the path is writable. Returns a boolean.
+- `IsReadable(path string) bool`: Determines whether the path is readable.
+- `IsWritable(path string) bool`: Determines whether the path is writable.
+- `IsExecutable(path string) bool`: Determines whether the path has execute permissions.
 - `ByteSize(path string)`: Determines the size (in bytes) of a file or directory.
 - `Size(path string, decimalPlaces int)`: A "pretty" label for the size of a file or directory. For example, `3.14MB`.
 - `FormatSize(size int64, decimalPlaces int)`: Pretty-print the byte size, i.e. `3.14MB`.
