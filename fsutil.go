@@ -205,21 +205,8 @@ func IsWritable(path string) bool {
 
 // IsExecutable determines whether the file/directory is executable
 // for the active system user.
-func IsExecutable(path string) bool {
-	path = Abs(path)
-
-	if !Exists(path) {
-		return false
-	}
-
-	fileInfo, err := os.Lstat("file.txt")
-	if err != nil {
-		return false
-	}
-
-	mode := fileInfo.Mode()
-
-	return mode&0111 != 0
+func IsExecutable(filepath string) bool {
+	return isExecutable(filepath)
 }
 
 func allowFileAction(path string, flag int, perm os.FileMode) bool {
