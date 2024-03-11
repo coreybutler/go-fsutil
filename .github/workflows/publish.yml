@@ -15,4 +15,5 @@ jobs:
         regex_pattern: "(version:)(\\s)?(?<version>\\d+\\.\\d+\\.\\d+(.+)?)\\n?"
         root: ./.gorc
         tag_prefix: "v"
+      env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
